@@ -1,7 +1,6 @@
 package poly.petshop.controller.admin;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -19,7 +18,6 @@ import jakarta.validation.Valid;
 import poly.petshop.domain.Category;
 import poly.petshop.domain.Product;
 import poly.petshop.domain.Supplier;
-import poly.petshop.domain.User;
 import poly.petshop.service.CategorySevice;
 import poly.petshop.service.ProductService;
 import poly.petshop.service.SupplierService;

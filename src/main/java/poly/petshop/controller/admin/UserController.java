@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import poly.petshop.domain.User;
-import poly.petshop.repository.UserRepository;
 import poly.petshop.service.UploadService;
 import poly.petshop.service.UserService;
 
