@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>User Page</title>
+    <!-- Latest compiled and minified CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Latest compiled JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    $(document).ready(() => {
+    const avatarFile = $("#avatarFile");
+    const avatarPreview = $("#avatarPreview");
+
+    // Lấy đường dẫn ảnh gốc từ thuộc tính src của img
+    const orgImage = avatarPreview.attr("src");
+
+    // Nếu không có ảnh gốc hoặc nó là "null" hoặc rỗng thì ẩn ảnh
+    if (!orgImage || orgImage.includes("null") || orgImage.trim() === "") {
+        avatarPreview.hide();
+    } else {
+        avatarPreview.show();
+    }
+
+    // Khi chọn file mới
+    avatarFile.change(function (e) {
+        const file = e.target.files[0];
+
+        if (file && (file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/jpg")) {
+            const imgURL = URL.createObjectURL(file);
+            avatarPreview.attr("src", imgURL).show(); // Hiển thị ảnh mới
+        } else {
+            alert("Vui lòng chọn file ảnh có định dạng .png, .jpg, hoặc .jpeg!");
+            avatarPreview.attr("src", orgImage).toggle(orgImage && orgImage.trim() !== ""); // Quay lại ảnh cũ nếu có, nếu không thì ẩn
+        }
+    });
+});
+
+
+</script>
+    <link rel="stylesheet" th:href="@{/content/css/style.css}">
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="sb-nav-fixed">
+    <div th:insert="~{fragments/header :: navigation}"></div>
+    <div id="layoutSidenav">
+        <div th:insert="~{fragments/sidebar :: sidebar}"></div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">Manage User</h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="/admin/user">Users</a></li>
+                        <li class="breadcrumb-item active">Update</li>
+                    </ol>
+                        <hr>
+                        <div class="container mt-5">
+                            <div class="row">
+                                <div class="col-md-6 col-12 mx-auto">
+                                    <h3>Update User <span th:text="${user.userId}"></span> </h3>
+                                    <hr>
+                                <form th:action="@{/admin/user/update}" th:object="${user}" method="POST" enctype="multipart/form-data">
+                                        <div class="mb-3" style="display: none;">
+                                          <label for="userId" class="form-label">Id: <span th:text="${user.userId}"></span></label>
+                                          <input type="text" id="userId" class="form-control" th:field="*{userId}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email:</label>
+                                            <input type="email" id="email" class="form-control" th:field="*{email}" readonly>
+                                            <div th:if="${error}" class="alert alert-danger">
+                                                <strong>Lỗi:</strong> <span th:text="${error}"></span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="soDienThoai" class="form-label">Phone Number</label>
+                                          <input type="text" id="soDienThoai" class="form-control" th:field="*{soDienThoai}">
+                                          <div th:if="${errorSDT}" class="alert alert-danger">
+                                            <strong>Lỗi:</strong> <span th:text="${errorSDT}"></span>
+                                        </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="hoVaTen" class="form-label">Full Name</label>
+                                            <input type="text" id="hoVaTen" class="form-control" th:field="*{hoVaTen}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="diaChi" class="form-label">Address</label>
+                                            <input type="text" id="diaChi" class="form-control" th:field="*{diaChi}">
+                                        </div>
+                                        <!-- Role -->
+                                        <div class="mb-3">
+                                            <label for="userRole" class="form-label">User Role: </label><br>
+                                            <div th:each="role : ${userRoles}" class="form-check-inline">
+                                                <input type="radio" th:field="*{userRole}" th:value="${role}" 
+                                                       class="form-check-input" id="userRole" th:checked="*{userRole} == ${role}">
+                                                <label for="userRole" th:text="${role}" class="form-check-label"></label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="gioiTinh" class="form-label">Gioi Tinh: </label><br>
+                                            <!-- <div th:each="gender : ${gioiTinhs}" class="form-check-inline">
+                                                <input type="radio" th:field="*{gioiTinh}" th:value="${gender}" 
+                                                        class="form-check-input" id="gioiTinh" checked>
+                                                <label class="form-check-label" th:text="${gender}" for="gioiTinh"></label>
+                                            </div> -->
+                                            <select th:field="*{gioiTinh}" class="col-12 form-select">
+                                                <option th:each="option :${options}"
+                                                th:value="${option}" th:text="${option}" th:selected="*{gioiTinh}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- <div class="mb-3">
+                                            <label for="gioiTinh" class="form-label">Gioi Tinh: </label><br>
+                                            <div th:each="gender : ${gioiTinhs}" class="form-check-inline">
+                                                <input type="radio" th:field="*{gioiTinh}" th:value="${gender}" 
+                                                        class="form-check-input" id="gioiTinh" th:checked="*{gioiTinh} == ${gender}">
+                                                <label class="form-check-label" th:text="${gender}" for="gioiTinh"></label>
+                                            </div>
+                                        </div> -->
+                                        <div class="mb-3">
+                                            <label for="ngaySinh" class="form-label">BirthDay:</label>
+                                            <input type="date" id="ngaySinh" class="form-control" th:field="*{ngaySinh}" 
+                                                   th:value="${#dates.format(user.ngaySinh, 'yyyy-MM-dd')}">
+                                        </div>
+                                        
+                                        <div class="mb-3 col-12 col-md-6">
+                                            <label for="avatarFile" class="form-label">Image</label><br>
+                                            <input type="file" class="form-control-file" id="avatarFile" name="image"
+                                                accept=".png, .jpg, .jpeg" >
+                                        </div>
+                                        <div class="col-12 mb-3" th:if="${user.avatar != null and user.avatar != ''}">
+                                            <img alt="User Avatar" th:src="@{|/images/avatar/${user.avatar}|}" style="max-height: 250px;" id="avatarPreview">
+                                        </div>                                          
+                                        <button type="submit" class="btn btn-warning mt-3">Update</button>
+                                        <a href="/admin/user" type="button" class="btn btn-success mt-3">
+                                            Back
+                                        </a>
+                                      </form>
+                                </div>
+                            </div>
+                            
+                        </div>
+                </div>
+            </main>
+            <div th:insert="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script th:src="@{/content/js/scripts.js}"></script>
+      
+    
+</body>
+</html>
