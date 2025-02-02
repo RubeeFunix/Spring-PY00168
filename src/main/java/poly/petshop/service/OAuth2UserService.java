@@ -31,6 +31,7 @@ public class OAuth2UserService {
             user = users.get(0);
         } else {
             user = new User();
+            user.setGoogleId(googleId);
             user.setEmail(email);
             user.setHoVaTen(name);
             user.setUserRole("User");

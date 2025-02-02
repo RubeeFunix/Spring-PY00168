@@ -40,7 +40,7 @@ public class HomePageController {
     public String getHomePage(Model model, HttpServletRequest req) {
         List<Product> products = this.productService.getAllProducts();
         model.addAttribute("products", products);
-        return "client/homepage/show";
+        return "client/homepage/index";
     }
 
     @GetMapping("/shop")
@@ -86,11 +86,6 @@ public class HomePageController {
         return "client/auth/dangnhap";
     }
 
-    // login Google
-    @GetMapping("/oauth2/authorization/google")
-    public String googleLogin() {
-        return "redirect:/oauth2/authorization/google";
-    }
     // k can lam vi springboot xu ly
     // @PostMapping("/logout")
     // public String performLogout(Model model) {

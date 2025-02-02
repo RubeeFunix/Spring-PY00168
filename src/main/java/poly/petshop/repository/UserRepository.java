@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import poly.petshop.domain.User;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
@@ -28,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     boolean existsBySoDienThoaiAndUserIdNot(String soDienThoai, int userId);
 
     User findUserByEmail(String email);
+
+    Optional<User> findByGoogleId(String googleId);
 }
