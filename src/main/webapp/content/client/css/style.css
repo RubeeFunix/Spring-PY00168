@@ -1,3 +1,6 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
 
 /*** Spinner Start ***/
 #spinner {
@@ -494,4 +497,119 @@
     line-height: 35px;
 }
 /*** Footer End ***/
+/** Nút logout my-account**/
+.btn-logout {
+    display: block;
+    width: 100%;
+    font-weight: normal;
+    padding: 0;
+    text-align: center;
+    color: #000;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    color: #fff;
+}
+/** Nút logout my-account**/
+
+/* Căn chỉnh sản phẩm */
+.fruite-item {
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.fruite-item:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== Hình ảnh sản phẩm ==================== */
+.fruite-img {
+    overflow: hidden;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    position: relative;
+}
+
+.fruite-img img {
+    transition: transform 0.4s ease-in-out, opacity 0.3s ease-in-out;
+    width: 100%;
+    height: auto;
+    border-radius: 15px 15px 0 0;
+}
+
+.fruite-item:hover .fruite-img img {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+/* ==================== Nhãn danh mục ==================== */
+.category-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 10px;
+    background: linear-gradient(135deg, #81c408, #9abc9a);
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+}
+
+/* ==================== Thông tin sản phẩm ==================== */
+.fruite-item .p-3 {
+    padding: 15px;
+    text-align: center;
+}
+/* Tên sản phẩm */
+.product-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Giá sản phẩm */
+.price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e63946;
+    margin-bottom: 10px;
+}
+
+/* ==================== Nút Thêm vào giỏ ==================== */
+.btn-outline-success {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    font-size: 16px;
+    padding: 10px 15px;
+    font-weight: 700;
+    color: #81c408;
+    border: 2px solid #81c408;
+    transition: all 0.3s ease-in-out;
+    background: transparent;
+}
+
+.btn-outline-success i {
+    transition: transform 0.3s ease-in-out;
+    margin-right: 8px;
+}
+
+.btn-outline-success:hover {
+    background: #81c408;
+    color: white;
+}
+
+.btn-outline-success:hover i {
+    transform: translateX(5px);
+}
 

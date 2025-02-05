@@ -68,6 +68,9 @@ public class User {
     @Column(nullable = true, columnDefinition = "NVARCHAR(255)")
     private String diaChi;
 
+    @Column
+    private Integer totalQuantityInCart = 0;
+
     private String avatar;
 
     // One user --> to many --> orders
@@ -99,9 +102,23 @@ public class User {
     public User() {
     }
 
-    public User(int userId, String email, String matKhau, Date ngaySinh, String gioiTinh, Date ngayTaoAcc,
-            String userRole, String hoVaTen, String soDienThoai, String diaChi, String avatar, List<Order> orders,
-            List<Payment> payments, List<Review> reviews, List<Cart> carts) {
+    @Override
+    public String toString() {
+        return "User [userId=" + userId + ", email=" + email + ", matKhau=" + matKhau + ", ngaySinh=" + ngaySinh
+                + ", gioiTinh=" + gioiTinh + ", ngayTaoAcc=" + ngayTaoAcc + ", userRole=" + userRole + ", hoVaTen="
+                + hoVaTen + ", soDienThoai=" + soDienThoai + ", diaChi=" + diaChi + ", totalQuantityInCart="
+                + totalQuantityInCart + ", avatar=" + avatar + ", orders=" + orders + ", payments=" + payments
+                + ", reviews=" + reviews + ", carts=" + carts + ", googleId=" + googleId + "]";
+    }
+
+    public User(int userId,
+            @Email(message = "Email không hợp lệ", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$") @NotEmpty(message = "Email không được để trống") String email,
+            @NotEmpty(message = "Password không được để trống") @Size(min = 8, message = "Mật khẩu phải lớn hơn 8 ký tự") @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$", message = "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt") String matKhau,
+            @Past(message = "Ngày sinh không hợp lệ (phải nhỏ hơn ngày hiện tại)") Date ngaySinh, String gioiTinh,
+            Date ngayTaoAcc, @NotEmpty(message = "Hãy chọn vai trò người dùng") String userRole,
+            @NotEmpty(message = "Nhập họ và tên") @Size(min = 2, message = "Họ và tên từ 2 ký tự trở lên") String hoVaTen,
+            String soDienThoai, String diaChi, Integer totalQuantityInCart, String avatar, List<Order> orders,
+            List<Payment> payments, List<Review> reviews, List<Cart> carts, String googleId) {
         this.userId = userId;
         this.email = email;
         this.matKhau = matKhau;
@@ -112,19 +129,13 @@ public class User {
         this.hoVaTen = hoVaTen;
         this.soDienThoai = soDienThoai;
         this.diaChi = diaChi;
+        this.totalQuantityInCart = totalQuantityInCart;
         this.avatar = avatar;
         this.orders = orders;
         this.payments = payments;
         this.reviews = reviews;
         this.carts = carts;
-    }
-
-    @Override
-    public String toString() {
-        return "User [userId=" + userId + ", email=" + email + ", matKhau=" + matKhau + ", ngaySinh=" + ngaySinh
-                + ", gioiTinh=" + gioiTinh + ", ngayTaoAcc=" + ngayTaoAcc + ", userRole=" + userRole + ", hoVaTen="
-                + hoVaTen + ", soDienThoai=" + soDienThoai + ", diaChi=" + diaChi + ", avatar=" + avatar + ", orders="
-                + orders + ", payments=" + payments + ", reviews=" + reviews + ", carts=" + carts + "]";
+        this.googleId = googleId;
     }
 
     public int getUserId() {
@@ -245,6 +256,14 @@ public class User {
 
     public void setCarts(List<Cart> carts) {
         this.carts = carts;
+    }
+
+    public Integer getTotalQuantityInCart() {
+        return totalQuantityInCart;
+    }
+
+    public void setTotalQuantityInCart(Integer totalQuantityInCart) {
+        this.totalQuantityInCart = totalQuantityInCart;
     }
 
 }

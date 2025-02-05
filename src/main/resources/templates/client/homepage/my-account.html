@@ -7,11 +7,10 @@
         <meta content="eCommerce HTML Template Free Download" name="keywords">
         <meta content="eCommerce HTML Template Free Download" name="description">
 
-        <!-- Google Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400|Source+Code+Pro:700,900&display=swap" rel="stylesheet">
+        <!-- Google font-->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
         <!-- CSS Libraries -->
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="/content/user/lib/slick/slick.css" rel="stylesheet">
         <link href="/content/user/lib/slick/slick-theme.css" rel="stylesheet">
@@ -64,17 +63,37 @@
     <!-- Modal Search End -->
 
         <!-- My Account Start -->
-        <div class="container-fluid fruite py-5">
+        <div class="container-fluid fruite py-5 mt-5">
+            <nav aria-label="breadcrumb" style="background: linear-gradient(90deg, #56ab2f, #a8e063); padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <ol class="breadcrumb mb-0" style="margin: 0; padding: 0; list-style: none; display: flex; align-items: center; font-size: 1rem; color: #fff;">
+                    <li class="breadcrumb-item" style="margin-right: 10px;">
+                        <a href="/" style="text-decoration: none; color: #fdfdfd; font-weight: 600; transition: color 0.3s;">
+                            Home
+                        </a>
+                        <span style="margin-left: 8px; color: rgba(255, 255, 255, 0.7);">/</span>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" style="font-weight: 700; color: #f8f9fa;">
+                        My Account
+                    </li>
+                    <span style="margin-left: 8px; color: rgba(255, 255, 255, 0.7);">/</span>
+                </ol>
+            </nav>
             <div class="container py-5">
         <div class="my-account tab-class text-center">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
-                            <a class="nav-link active" id="orders-nav" data-toggle="pill" href="#orders-tab" role="tab"><i class="fa fa-shopping-bag"></i>Orders</a>
-                            <a class="nav-link" id="address-nav" data-toggle="pill" href="#address-tab" role="tab"><i class="fa fa-map-marker-alt"></i>address</a>
-                            <a class="nav-link" id="account-nav" data-toggle="pill" href="#account-tab" role="tab"><i class="fa fa-user"></i>Account Details</a>
-                            <a class="nav-link" href="index.html"><i class="fa fa-sign-out-alt"></i>Logout</a>
+                            <a class="nav-link active" id="orders-nav" data-toggle="pill" href="#orders-tab" role="tab"><i class="fa fa-shopping-bag"></i>Đơn hàng</a>
+                            <a class="nav-link" id="address-nav" data-toggle="pill" href="#address-tab" role="tab"><i class="fa fa-map-marker-alt"></i>Địa Chỉ</a>
+                            <a class="nav-link" id="account-nav" data-toggle="pill" href="#account-tab" role="tab"><i class="fa fa-user"></i>Thông tin tài khoản</a>
+                            <div sec:authorize="isAuthenticated()">
+                                <form th:action="@{/logout}" method="POST" class="nav-link">
+                                    <button type="submit" class="btn-logout">
+                                        <i class="fa fa-sign-out-alt"></i> Đăng xuất
+                                    </button>
+                                </form>
+                            </div>                            
                         </div>
                     </div>
                     <div class="col-md-9">
@@ -84,12 +103,12 @@
                                     <table class="table table-bordered">
                                         <thead class="thead-dark">
                                             <tr>
-                                                <th>No</th>
-                                                <th>Product</th>
-                                                <th>Date</th>
-                                                <th>Price</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
+                                                <th>STT</th>
+                                                <th>Sản Phẩm</th>
+                                                <th>Ngày Mua</th>
+                                                <th>Giá</th>
+                                                <th>Trạng Thái</th>
+                                                <th>Hành động</th>
                                             </tr>
                                         </thead>
                                         <tbody>

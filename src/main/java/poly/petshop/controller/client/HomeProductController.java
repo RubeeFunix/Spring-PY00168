@@ -1,6 +1,7 @@
 package poly.petshop.controller.client;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,8 +21,12 @@ public class HomeProductController {
 
     @GetMapping("/product/{productId}")
     public String getHomeProduct(Model model, @PathVariable("productId") int productId) {
-        Product product = productService.getProductById(productId);
-        model.addAttribute("product", product);
+        Optional<Product> optionalProduct = productService.getProductById(productId);
+        if (optionalProduct.isPresent()) {
+            model.addAttribute("product", optionalProduct.get());
+        } else {
+            model.addAttribute("error", "Sản phẩm không tồn tại!");
+        }
         model.addAttribute("productId", productId);
         List<Product> products = this.productService.getAllProducts();
         model.addAttribute("products", products);

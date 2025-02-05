@@ -9,11 +9,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import poly.petshop.domain.Cart;
 import poly.petshop.domain.Product;
 import poly.petshop.domain.User;
+import poly.petshop.repository.CartRepository;
 import poly.petshop.service.ProductService;
 import poly.petshop.service.UserService;
 
@@ -23,13 +27,16 @@ public class HomePageController {
     private final ProductService productService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final CartRepository cartRepository;
 
     public HomePageController(ProductService productService,
             PasswordEncoder passwordEncoder,
-            UserService userService) {
+            UserService userService,
+            CartRepository cartRepositor) {
         this.productService = productService;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.cartRepository = cartRepositor;
     }
 
     @GetMapping("/")
@@ -52,9 +59,39 @@ public class HomePageController {
     }
 
     @GetMapping("/cart")
-    public String getMyCartPage(Model model, @ModelAttribute("product") Product product) {
-        model.addAttribute("products", productService.getAllProducts());
-        return "client/pagechualamcontroller/cart";
+    public String getMyCartPage(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        String email = (String) session.getAttribute("email");
+        User user = this.userService.getUserByEmail(email);
+
+        // Lấy danh sách sản phẩm trong giỏ hàng
+        List<Cart> cartItems = cartRepository.findByUser(user);
+        double totalPrice = 0;
+        for (Cart ci : cartItems) {
+            totalPrice += ci.getProduct().getGia() * ci.getSoLuongTrongGio();
+        }
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalPrice", totalPrice);
+        return "client/cart/cart";
+    }
+
+    @PostMapping("/add-product-to-cart/{id}")
+    public String postProductToMyCartPage(@PathVariable("id") int productId, HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession(false);
+
+        String email = (String) session.getAttribute("email");
+
+        int soLuongTrongGio = 1;
+
+        // Thêm sản phẩm vào giỏ hàng
+        this.productService.handleCheckAndAddProductInCart(email, productId, soLuongTrongGio);
+
+        // Cập nhật totalQuantityInCart vào session
+        User user = this.userService.getUserByEmail(email);
+        session.setAttribute("totalQuantityInCart", user.getTotalQuantityInCart());
+
+        return "redirect:/cart";
     }
 
     @GetMapping("/thanhtoan")

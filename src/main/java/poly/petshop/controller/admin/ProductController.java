@@ -2,6 +2,7 @@ package poly.petshop.controller.admin;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,10 +52,11 @@ public class ProductController {
 
     @GetMapping("/admin/product/{productId}")
     public String GetProductDetailPage(@PathVariable("productId") int productId, Model model) {
-        Product product = productService.getProductById(productId);
-        model.addAttribute("product", product);
+        Optional<Product> product = productService.getProductById(productId);
+        if (product.isPresent()) {
+            model.addAttribute("product", product.get());
+        }
         model.addAttribute("productId", productId);
-        System.out.println("Avatar path: " + product.getImageURL());
         return "admin/product/detail";
     }
 
@@ -127,9 +129,12 @@ public class ProductController {
     // Trang update product
     @GetMapping("/admin/product/update/{productId}")
     public String GetProductUpdatePage(@PathVariable("productId") int productId, Model model) {
-        Product currentProduct = productService.getProductById(productId);
-        model.addAttribute("product", currentProduct);
+        Optional<Product> currentProduct = productService.getProductById(productId);
+        if (currentProduct.isPresent()) {
+            model.addAttribute("product", currentProduct.get());
+        }
         model.addAttribute("productId", productId);
+
         List<Category> categories = categorySevice.getAllCategories();
         List<Supplier> suppliers = supplierService.getAllSuppliers();
 
@@ -142,8 +147,9 @@ public class ProductController {
     @PostMapping("/admin/product/update")
     public String PostProductUpdatePage(@ModelAttribute("product") Product thisProduct, Model model,
             @RequestParam("image") MultipartFile file) throws IOException {
-        Product currentProduct = productService.getProductById(thisProduct.getProductId());
-        if (currentProduct != null) {
+        Optional<Product> currentProductOpt = productService.getProductById(thisProduct.getProductId());
+        if (currentProductOpt.isPresent()) {
+            Product currentProduct = currentProductOpt.get();
             if (!file.isEmpty()) {
                 // Thư mục lưu avatar
                 String avatarDirectory = System.getProperty("user.dir") + "/src/main/resources/static/images/product";
@@ -192,8 +198,13 @@ public class ProductController {
     // Trang delete product
     @GetMapping("/admin/product/delete/{productId}")
     public String GetProductDeletePage(@PathVariable("productId") int productId, Model model) {
-        Product product = productService.getProductById(productId);
-        model.addAttribute("product", product);
+        Optional<Product> productOpt = productService.getProductById(productId);
+        if (productOpt.isPresent()) {
+            model.addAttribute("product", productOpt.get());
+        } else {
+            model.addAttribute("error", "Sản phẩm không tồn tại!");
+        }
+
         model.addAttribute("productId", productId);
         return "admin/product/delete";
     }
