@@ -53,38 +53,28 @@
                 </ol>
             </nav>
             <div class="container py-5">
+                <!-- Hiển thị thông báo lỗi nếu có -->
+        <div th:if="${errorMessage != null}" class="alert alert-danger" role="alert">
+            <span th:utext="${errorMessage}"></span>
+        </div>
                 <h1 class="mb-4">Billing details</h1>
-                <form action="#">
+                <form th:action="@{/dat-hang}" method="POST">
                     <div class="row g-5">
                         <div class="col-md-12 col-lg-6 col-xl-7">
-                            <div class="row">
-                                <div class="col-md-12 col-lg-6">
-                                    <div class="form-item w-100">
-                                        <label class="form-label my-3">First Name<sup>*</sup></label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-12 col-lg-6">
-                                    <div class="form-item w-100">
-                                        <label class="form-label my-3">Last Name<sup>*</sup></label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
                             <div class="form-item">
-                                <label class="form-label my-3">Company Name<sup>*</sup></label>
+                                <label class="form-label my-3">Họ Và Tên <sup>*</sup></label>
+                                <input type="text" class="form-control">
+                            </div>       
+                            <div class="form-item">
+                                <label class="form-label my-3">Địa chỉ <sup>*</sup></label>
                                 <input type="text" class="form-control">
                             </div>
                             <div class="form-item">
-                                <label class="form-label my-3">Address <sup>*</sup></label>
+                                <label class="form-label my-3">Email <sup>*</sup></label>
                                 <input type="text" class="form-control" placeholder="House Number Street Name">
                             </div>
                             <div class="form-item">
-                                <label class="form-label my-3">Town/City<sup>*</sup></label>
-                                <input type="text" class="form-control">
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Country<sup>*</sup></label>
+                                <label class="form-label my-3">Số điện thoại <sup>*</sup></label>
                                 <input type="text" class="form-control">
                             </div>
                             <div class="form-item">
@@ -96,83 +86,68 @@
                                 <input type="tel" class="form-control">
                             </div>
                             <div class="form-item">
-                                <label class="form-label my-3">Email Address<sup>*</sup></label>
+                                <label class="form-label my-3">Địa Chỉ giao hàng mặc định<sup>*</sup></label>
                                 <input type="email" class="form-control">
                             </div>
-                            <div class="form-check my-3">
-                                <input type="checkbox" class="form-check-input" id="Account-1" name="Accounts" value="Accounts">
-                                <label class="form-check-label" for="Account-1">Create an account?</label>
-                            </div>
-                            <hr>
-                            <div class="form-check my-3">
-                                <input class="form-check-input" type="checkbox" id="Address-1" name="Address" value="Address">
-                                <label class="form-check-label" for="Address-1">Ship to a different address?</label>
-                            </div>
+                            <!-- <div class="form-check my-3">
+                                <input class="form-check-input" type="checkbox" id="shippingAddressCheckbox" name="Address">
+                                <label class="form-check-label" for="shippingAddressCheckbox">
+                                    Giao hàng tới một địa chỉ khác
+                                </label>
+                            </div> -->
+                            
+
+                            <!-- <div id="shippingAddressContainer" style="display: none;">
+                                <div class="form-item">
+                                    <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" placeholder="Nhập địa chỉ giao hàng mới">
+                                </div>
+                            </div> -->
+                     
                             <div class="form-item">
-                                <textarea name="text" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Oreder Notes (Optional)"></textarea>
-                            </div>
+                                <label class="form-label my-3">Phương thức thanh toán<sup>*</sup></label>
+                                <select class="form-select" aria-label="Default select example">
+                                    <option selected>Tiền mặt</option>
+                                    <option value="1">Chuyển khoản</option>
+                                  </select>
+                            </div> 
+                            
                         </div>
                         <div class="col-md-12 col-lg-6 col-xl-5">
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Products</th>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">Price</th>
-                                            <th scope="col">Quantity</th>
-                                            <th scope="col">Total</th>
+                                            <th scope="col">Sản phẩm</th>
+                                            <th scope="col">Tên</th>
+                                            <th scope="col">Giá</th>
+                                            <th scope="col">Số Lượng</th>
+                                            <th scope="col">Tổng tiền</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <th scope="row">
-                                                <div class="d-flex align-items-center mt-2">
-                                                    <img src="img/vegetable-item-2.jpg" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
+                                        <tr th:each="cart :${cartItems}" th:data-id="${cart.product.productId}" th:data-price="${cart.product.gia}" th:data-quantity="${cart.soLuongTrongGio}">
+                                            <th scope="row" class="py-5">
+                                                <div class="d-flex align-items-center">
+                                                    <img th:src="@{|/images/product/${cart.product.imageURL}|}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
                                                 </div>
                                             </th>
-                                            <td class="py-5">Awesome Brocoli</td>
-                                            <td class="py-5">$69.00</td>
-                                            <td class="py-5">2</td>
-                                            <td class="py-5">$138.00</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">
-                                                <div class="d-flex align-items-center mt-2">
-                                                    <img src="img/vegetable-item-5.jpg" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                                </div>
-                                            </th>
-                                            <td class="py-5">Potatoes</td>
-                                            <td class="py-5">$69.00</td>
-                                            <td class="py-5">2</td>
-                                            <td class="py-5">$138.00</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">
-                                                <div class="d-flex align-items-center mt-2">
-                                                    <img src="img/vegetable-item-3.png" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                                </div>
-                                            </th>
-                                            <td class="py-5">Big Banana</td>
-                                            <td class="py-5">$69.00</td>
-                                            <td class="py-5">2</td>
-                                            <td class="py-5">$138.00</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">
-                                            </th>
-                                            <td class="py-5"></td>
-                                            <td class="py-5"></td>
-                                            <td class="py-5">
-                                                <p class="mb-0 text-dark py-3">Subtotal</p>
+                                            <td class="align-middle py-5">
+                                                <a th:href="@{|/product/${cart.product.productId}|}" class="" th:text="${cart.product.tenSP}">Big Banana</a>
                                             </td>
                                             <td class="py-5">
-                                                <div class="py-3 border-bottom border-top">
-                                                    <p class="mb-0 text-dark">$414.00</p>
+                                                <p class="mb-0 mt-4" th:text="${#numbers.formatInteger(cart.product.gia, 0, 'POINT')} + ' Đ'">2.99 $</p>
+                                            </td>
+                                            <td class="py-5">
+                                                <div class="input-group quantity mt-4" style="width: 100px;">
+                                                    <input type="text" class="form-control form-control-sm text-center border-0 quantity-input" th:value="${cart.soLuongTrongGio}" readonly>
                                                 </div>
                                             </td>
+                                            <td class="py-5">
+                                                <p class="mb-0 mt-4 total-price" th:text="${#numbers.formatInteger(cart.soLuongTrongGio*cart.product.gia, 0, 'POINT')} + ' Đ'">2.99 $</p>
+                                            </td>
                                         </tr>
-                                        <tr>
+                                        
+                                        <!-- <tr>
                                             <th scope="row">
                                             </th>
                                             <td class="py-5">
@@ -192,25 +167,25 @@
                                                     <label class="form-check-label" for="Shipping-3">Local Pickup: $8.00</label>
                                                 </div>
                                             </td>
-                                        </tr>
+                                        </tr>  -->
                                         <tr>
                                             <th scope="row">
                                             </th>
                                             <td class="py-5">
-                                                <p class="mb-0 text-dark text-uppercase py-3">TOTAL</p>
+                                                <p class="mb-0 text-dark text-uppercase py-3">Tổng tiền</p>
                                             </td>
                                             <td class="py-5"></td>
                                             <td class="py-5"></td>
                                             <td class="py-5">
                                                 <div class="py-3 border-bottom border-top">
-                                                    <p class="mb-0 text-dark">$135.00</p>
+                                                    <p class="mb-0 text-dark cart-total-price" th:text="${#numbers.formatInteger(totalPrice, 0, 'POINT')} + ' Đ'">$135.00</p>
                                                 </div>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
+                            <!-- <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
                                 <div class="col-12">
                                     <div class="form-check text-start my-3">
                                         <input type="checkbox" class="form-check-input bg-primary border-0" id="Transfer-1" name="Transfer" value="Transfer">
@@ -242,9 +217,15 @@
                                         <label class="form-check-label" for="Paypal-1">Paypal</label>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
+                            
                             <div class="row g-4 text-center align-items-center justify-content-center pt-4">
-                                <button type="button" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Place Order</button>
+                                
+                                    <button type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">
+                                        Đặt hàng
+                                    </button>
+                               
+                                
                             </div>
                         </div>
                     </div>
@@ -266,7 +247,23 @@
 <script src="/content/client/lib/waypoints/waypoints.min.js"></script>
 <script src="/content/client/lib/lightbox/js/lightbox.min.js"></script>
 <script src="/content/client/lib/owlcarousel/owl.carousel.min.js"></script>
-
+<!-- <script>
+    $(document).ready(function () {
+        $("#shippingAddressCheckbox").change(function () {
+            if (this.checked) {
+                $("#shippingAddressContainer").slideDown(); // Hiển thị ô nhập địa chỉ
+            } else {
+                $("#shippingAddressContainer").slideUp(); // Ẩn ô nhập địa chỉ
+            }
+        });
+    });
+    </script> -->
+    <script>
+        document.querySelector("form").addEventListener("submit", function() {
+            console.log("🔥 Form đang submit!");
+        });
+        </script>
+        
 <!-- Template Javascript -->
 <script th:src="@{/content/client/js/main.js}"></script>
     </body>

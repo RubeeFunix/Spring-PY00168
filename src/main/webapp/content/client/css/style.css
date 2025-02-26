@@ -456,7 +456,10 @@ body {
 
 /*** Single Page Start ***/
 .pagination {
-    display: inline-block;
+    display: flex !important; 
+    justify-content: center; 
+    list-style: none;
+    /* Bỏ inline-block hoặc thay thế nếu cần */
 }
   
 .pagination a {

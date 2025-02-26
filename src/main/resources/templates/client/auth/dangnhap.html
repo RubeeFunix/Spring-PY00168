@@ -17,43 +17,48 @@
 					<div class="brand">
 						<img th:src="@{|/content/auth/img/logo.jpg|}" alt="logo">
 					</div>
+					
 					<div class="card fat">
 						<div class="card-body">
-							<h4 class="card-title">Login</h4>
-							<div th:if="${param.error}" style="color: red;">
-								Invalid username and password.</div>
-							<div th:if="${param.logout}" style="color: red;">
-								You have been logged out.</div>
+							<h4 class="card-title">Đăng nhập</h4>
+							<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+                            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                            <div th:if="${param.error}" style="color: red;">
+                                <span th:text="${session[SPRING_SECURITY_LAST_EXCEPTION]?.message ?: 'Tên người dùng và mật khẩu không hợp lệ.'}"></span>
+                            </div>
+                            <div th:if="${param.logout}" style="color: red;">
+                                Bạn đã đăng xuất.
+                            </div>
 							<form method="POST" th:action="@{/login}" class="my-login-validation" novalidate="">
 								<div class="form-group">
-									<label for="email">E-Mail Address</label>
+									<label for="email">Địa chỉ Email</label>
 									<input id="email" type="email" class="form-control" name="username" value="" required autofocus>
 									<div class="invalid-feedback">
-										Email is invalid
+										Email không hợp lệ
 									</div>
 								</div>
 
 								<div class="form-group">
 									<label for="password">Password
 										<a href="/client/auth/quenmatkhau" class="float-right">
-											Forgot Password?
+											Quên Mật Khẩu?
 										</a>
 									</label>
 									<input id="password" type="password" class="form-control" name="password" required data-eye>
 								    <div class="invalid-feedback">
-								    	Password is required
+								    	Mật khẩu?
 							    	</div>
 								</div>
 								<div class="form-group">
 									<div class="custom-checkbox custom-control">
 										<input type="checkbox" name="remember-me" id="remember-me" class="custom-control-input">
-										<label for="remember-me" class="custom-control-label">Remember Me</label>
+										<label for="remember-me" class="custom-control-label">Ghi nhớ đăng nhập</label>
 									</div>
 								</div>
 
 								<div class="form-group m-0">
 									<button type="submit" class="btn btn-primary btn-block">
-										Login
+										Đăng nhập
 									</button>
 								</div>
 								<div class="mt-4 text-center">
@@ -62,7 +67,7 @@
 									</a>
 								</div>
 								<div class="mt-4 text-center">
-									Don't have an account? <a href="/client/auth/dangky">Create One</a>
+									Chưa có tài khoản? <a href="/client/auth/dangky">Tạo tài khoản</a>
 								</div>
 							</form>
 							

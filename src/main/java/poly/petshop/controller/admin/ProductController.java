@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +24,9 @@ import poly.petshop.service.CategorySevice;
 import poly.petshop.service.ProductService;
 import poly.petshop.service.SupplierService;
 import poly.petshop.service.UploadService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Controller
 public class ProductController {
@@ -45,9 +49,32 @@ public class ProductController {
     }
 
     @GetMapping("/admin/product")
-    public String ProductPage(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
-        return "admin/product/show"; // Điều hướng về trang product
+    public String ProductPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "productId") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "") String keyword,
+            Model model) {
+        Sort sort = Sort.by(direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Product> productPage;
+        if (keyword.isEmpty()) {
+            productPage = productService.getAllProducts(pageable);
+        } else {
+            productPage = productService.searchProductsByName(keyword, pageable);
+        }
+
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", productPage.getNumber());
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalElements", productPage.getTotalElements());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
+        model.addAttribute("keyword", keyword);
+
+        return "admin/product/show";
     }
 
     @GetMapping("/admin/product/{productId}")

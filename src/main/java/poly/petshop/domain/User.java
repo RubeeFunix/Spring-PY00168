@@ -1,9 +1,12 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,26 +19,29 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
     @Column(nullable = false, unique = true, columnDefinition = "NVARCHAR(255)")
-    @Email(message = "Email không hợp lệ", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @Email(message = "Email không hợp lệ. Vui lòng nhập email đúng định dạng (ví dụ: user@example.com)", regexp = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\\.[a-zA-Z]{2,}$")
     @NotEmpty(message = "Email không được để trống")
     private String email;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    @NotEmpty(message = "Password không được để trống")
-    @Size(min = 8, message = "Mật khẩu phải lớn hơn 8 ký tự")
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$", message = "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt")
+    @NotEmpty(message = "Mật khẩu không được để trống")
+    @Size(min = 8, max = 100, message = "Mật khẩu phải từ 8 đến 100 ký tự")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$", message = "Mật khẩu phải chứa ít nhất một chữ cái in hoa, một chữ cái thường, một số, và một ký tự đặc biệt (@, #, $, %, ^, &, +, =, !)")
+    @JsonIgnore
     private String matKhau;
 
     @Column(nullable = true)
@@ -45,32 +51,36 @@ public class User {
 
     @Column(nullable = true, columnDefinition = "NVARCHAR(255)")
     private String gioiTinh;
-
+    // Thêm trường displayMatKhau để hiển thị "********"
+    private String displayMatKhau;
     // @Column(nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date ngayTaoAcc = new Date();
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    @NotEmpty(message = "Hãy chọn vai trò người dùng")
+    @NotEmpty(message = "Vai trò người dùng không được để trống. Vui lòng chọn Admin hoặc User")
     private String userRole = "User";
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    @NotEmpty(message = "Nhập họ và tên")
-    @Size(min = 2, message = "Họ và tên từ 2 ký tự trở lên")
+    @NotEmpty(message = "Họ và tên không được để trống")
+    @Size(min = 2, max = 255, message = "Họ và tên phải từ 2 đến 255 ký tự")
+    @Pattern(regexp = "^[a-zA-Z_ÀÁÂÃÈÉÊẾÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêếìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\\ ]+$", message = "Họ và tên không hợp lệ. Chỉ được chứa chữ cái tiếng Việt, không dấu hoặc có dấu, và khoảng trắng (ví dụ: Nguyễn Văn Hùng)")
     private String hoVaTen;
 
-    @Column(nullable = true, columnDefinition = "NVARCHAR(15)", unique = false)
-    // @NotEmpty(message = "Số điện thoại không được để trống")
-    // @Pattern(regexp = "^0[0-9]{9,10}$", message = "Số điện thoại không hợp lệ
-    // (bắt đầu bằng 0 và có từ 10-11 chữ số)")
+    @Column(nullable = true, columnDefinition = "NVARCHAR(15)", unique = true)
+    @Pattern(regexp = "^0[1-9][0-9]{8,9}$", message = "Số điện thoại không hợp lệ. Phải bắt đầu bằng 0 và có từ 10 đến 11 chữ số (ví dụ: 0987654321)")
     private String soDienThoai;
 
     @Column(nullable = true, columnDefinition = "NVARCHAR(255)")
     private String diaChi;
-
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private boolean activated = false;
+    @Column(length = 100)
+    private String activationCode;
     @Column
     private Integer totalQuantityInCart = 0;
 
+    @Column(nullable = true, columnDefinition = "NVARCHAR(255)")
     private String avatar;
 
     // One user --> to many --> orders
@@ -88,6 +98,30 @@ public class User {
     // One user --> to many --> carts
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Cart> carts;
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
+
+    public String getDisplayMatKhau() {
+        return displayMatKhau;
+    }
+
+    public void setDisplayMatKhau(String displayMatKhau) {
+        this.displayMatKhau = displayMatKhau;
+    }
 
     private String googleId;
 
@@ -107,8 +141,7 @@ public class User {
         return "User [userId=" + userId + ", email=" + email + ", matKhau=" + matKhau + ", ngaySinh=" + ngaySinh
                 + ", gioiTinh=" + gioiTinh + ", ngayTaoAcc=" + ngayTaoAcc + ", userRole=" + userRole + ", hoVaTen="
                 + hoVaTen + ", soDienThoai=" + soDienThoai + ", diaChi=" + diaChi + ", totalQuantityInCart="
-                + totalQuantityInCart + ", avatar=" + avatar + ", orders=" + orders + ", payments=" + payments
-                + ", reviews=" + reviews + ", carts=" + carts + ", googleId=" + googleId + "]";
+                + totalQuantityInCart + ", avatar=" + avatar + ", googleId=" + googleId + "]";
     }
 
     public User(int userId,

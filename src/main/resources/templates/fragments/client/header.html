@@ -15,21 +15,14 @@
                         </div>
                         <a href="/" class="nav-item nav-link active" th:text="#{menu.home}">Trang chủ</a>
                         <a href="/shop" class="nav-item nav-link" th:text="#{menu.shop}">Cửa hàng</a>
-                        <a href="/product/1" class="nav-item nav-link" th:text="#{menu.product}">Sản phẩm</a>
-                        <div class="nav-item dropdown">
+                        <!-- <a href="/danhgia" class="nav-item nav-link" th:text="#{menu.rate}">Đánh giá</a> -->
+                        <!-- <div class="nav-item dropdown">
                             
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" th:text="#{menu.page}">Trang</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" >Danh mục</a>
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
-                                <a href="/cart" class="dropdown-item" th:text="#{menu.cart}">Giỏ hàng</a>
-                                <a href="/thanhtoan" class="dropdown-item" th:text="#{menu.payment}">Thanh Toán</a>
-                                <a href="/danhgia" class="dropdown-item" th:text="#{menu.rate}">Đánh giá</a>
-                                <a href="/login" class="dropdown-item">Đăng nhập</a>
                                 <a href="/client/auth/dangky" class="dropdown-item">Đăng ký</a>
-                                <a href="/client/auth/quenmatkhau" class="dropdown-item">Quên mật khẩu</a>
-                                <a href="/myaccount" class="dropdown-item">Thông tin tài khoản</a>
-                                <a href="/404" class="dropdown-item">404 Page</a>
                             </div>
-                        </div>
+                        </div> -->
                         <a href="/contact" class="nav-item nav-link" th:text="#{menu.contact}">Liên hệ</a>
                     </div>
                     <div sec:authorize="isAnonymous()">

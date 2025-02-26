@@ -103,6 +103,10 @@
                 </ol>
             </nav>
             <div class="container py-5">
+                <!-- Hiển thị thông báo lỗi nếu có -->
+        <div th:if="${errorMessage != null}" class="alert alert-danger" role="alert">
+            <span th:utext="${errorMessage}"></span>
+        </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -116,7 +120,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="cart :${cartItems}">
+                            <tr th:each="cart :${cartItems}" th:data-id="${cart.product.productId}" th:data-price="${cart.product.gia}" th:data-quantity="${cart.soLuongTrongGio}">
                                 <th scope="row">
                                     <div class="d-flex align-items-center">
                                         <img th:src="@{|/images/product/${cart.product.imageURL}|}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
@@ -131,63 +135,80 @@
                                 <td>
                                     <div class="input-group quantity mt-4" style="width: 100px;">
                                         <div class="input-group-btn">
-                                            <button class="btn btn-sm btn-minus rounded-circle bg-light border" >
-                                            <i class="fa fa-minus"></i>
+                                            <button class="btn btn-sm btn-minus rounded-circle bg-light border">
+                                                <i class="fa fa-minus"></i>
                                             </button>
                                         </div>
-                                        <input type="text" class="form-control form-control-sm text-center border-0" th:value="${cart.soLuongTrongGio}">
+                                        <input type="text" class="form-control form-control-sm text-center border-0 quantity-input" 
+                                               th:value="${cart.soLuongTrongGio}" 
+                                               th:data-max="${cart.product.slTonKho}" 
+                                               id="quantityInput_${cart.product.productId}">
                                         <div class="input-group-btn">
-                                            <button class="btn btn-sm btn-plus rounded-circle bg-light border">
-                                                <i class="fa fa-plus"></i>
-                                            </button>
+                                            <form th:action="@{/add-product-to-cart/{id}(id=${cart.product.productId})}" method="POST" class="d-inline">
+                                                <input type="hidden" name="soLuongTrongGio" value="1">
+                                                <button type="submit" class="btn btn-sm btn-plus rounded-circle bg-light border" 
+                                                        th:disabled="${cart.soLuongTrongGio >= cart.product.slTonKho}">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="mb-0 mt-4" th:text="${#numbers.formatInteger(cart.soLuongTrongGio*cart.product.gia, 0, 'POINT')} + ' Đ'">2.99 $</p>
+                                    <p class="mb-0 mt-4 total-price" th:text="${#numbers.formatInteger(cart.soLuongTrongGio*cart.product.gia, 0, 'POINT')} + ' Đ'">2.99 $</p>
                                 </td>
                                 <td>
-                                    <button class="btn btn-md rounded-circle bg-light border mt-4" >
-                                        <i class="fa fa-times text-danger"></i>
-                                    </button>
+                                    <form th:action="@{/delete-cart-product/{id}(id=${cart.product.productId})}" method="POST">
+                                        <button class="btn btn-md rounded-circle bg-light border mt-4"  th:data-id="${cart.product.productId}">
+                                            <i class="fa fa-times text-danger"></i>
+                                        </button>
+                                    </form>                                    
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-5">
-                    <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
-                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Mã Giảm Giá</button>
-                </div>
-                
-                <div class="row g-4 justify-content-end">
-                    <div class="col-8"></div>
-                    <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
-                        <div id="countdown" style="font-size: 1.5rem; font-weight: bold; color: red;"></div>
-                        <div class="bg-light rounded">
-                            <div class="p-4">
-                                <h1 class="display-6 mb-4">Tính <span class="fw-normal">Tiền</span></h1>
-                                <div class="d-flex justify-content-between mb-4">
-                                    <h5 class="mb-0 me-4">Tổng tạm tính:</h5>
-                                    <p class="mb-0" th:text="${#numbers.formatInteger(totalPrice, 0, 'POINT')} + ' Đ'">$96.00</p>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="mb-0 me-4">Shipping</h5>
-                                    <div class="">
-                                        <p class="mb-0">Flat rate: $3.00</p>
+                <!-- Chỉ hiển thị khi giỏ hàng có sản phẩm -->
+                <div th:if="${not #lists.isEmpty(cartItems)}">
+                    <div class="mt-5">
+                        <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
+                        <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Mã Giảm Giá</button>
+                    </div>
+                    
+                    <div class="row g-4 justify-content-end">
+                        <div class="col-8"></div>
+                        <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
+                            <div class="bg-light rounded">
+                                <div class="p-4">
+                                    <h1 class="display-6 mb-4">Tính <span class="fw-normal">Tiền</span></h1>
+                                    <div class="d-flex justify-content-between mb-4">
+                                        <h5 class="mb-0 me-4 ">Tổng tạm tính:</h5>
+                                        <p class="mb-0 subtotal-price" th:text="${#numbers.formatInteger(totalPrice, 0, 'POINT')} + ' Đ'">$96.00</p>
                                     </div>
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="mb-0 me-4">Shipping</h5>
+                                        <div class="">
+                                            <p class="mb-0"  th:text="'30,000 Đ'">Flat rate: $3.00</p>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0 text-end">Shipping tới Quy Nhơn.</p>
                                 </div>
-                                <p class="mb-0 text-end">Shipping to Ukraine.</p>
+                                <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
+                                    <h5 class="mb-0 ps-4 me-4" >Tổng tiền </h5>
+                                    <p class="mb-0 pe-4 cart-total-price" th:text="${#numbers.formatInteger(totalPrice, 0, 'POINT')} + ' Đ'">$99.00</p>
+                                </div>
+                                <div class="promo-banner row mb-5">🔥 Giảm giá 70% hôm nay! 🔥</div>
+                                <form th:action="@{/thanhtoan}" method="GET">
+                                    <button class="promo-button btn border-secondary rounded-pill px-4 py-3 text-light text-uppercase mb-4 ms-4" type="submit">Đặt hàng</button>
+                                </form>
+                                
                             </div>
-                            <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
-                                <h5 class="mb-0 ps-4 me-4" >Tổng tiền </h5>
-                                <p class="mb-0 pe-4" th:text="${#numbers.formatInteger(totalPrice, 0, 'POINT')} + ' Đ'">$99.00</p>
-                            </div>
-                            <div class="promo-banner row mb-5">🔥 Giảm giá 70% hôm nay! 🔥</div>
-                            <button class="promo-button btn border-secondary rounded-pill px-4 py-3 text-light text-uppercase mb-4 ms-4" type="button">Thanh toán</button>
                         </div>
                     </div>
                 </div>
+                <div th:if="${#lists.isEmpty(cartItems)}">
+                    <p>Giỏ hàng của bạn đang trống.</p>
+                </div>                
             </div>
         </div>
         <!-- Cart Page End -->
@@ -206,21 +227,32 @@
 <script src="/content/client/lib/waypoints/waypoints.min.js"></script>
 <script src="/content/client/lib/lightbox/js/lightbox.min.js"></script>
 <script src="/content/client/lib/owlcarousel/owl.carousel.min.js"></script>
-<script>
-    function startCountdown(duration) {
-        let time = duration;
-        setInterval(() => {
-            const minutes = Math.floor(time / 60);
-            const seconds = time % 60;
-            document.getElementById("countdown").innerText = `Flash Sale: ${minutes} phút ${seconds} giây`;
-            time--;
-        }, 1000);
-    }
-    
-    startCountdown(300); // Đếm ngược 5 phút
-    </script>
+
 <!-- Template Javascript -->
 <script th:src="@{/content/client/js/main.js}"></script>
+<script>
+    $(document).ready(function() {
+        $('.btn-plus').click(function(e) {
+            var productId = $(this).closest('tr').data('id');
+            var input = $('#quantityInput_' + productId);
+            var max = parseInt(input.data('max'));
+            var current = parseInt(input.val());
+    
+            if (current >= max) {
+                e.preventDefault();
+                alert('Không thể thêm nữa! Số lượng tồn kho chỉ còn: ' + max);
+            }
+        });
+    
+        $('.btn-minus').click(function() {
+            var input = $(this).closest('.quantity').find('.quantity-input');
+            var current = parseInt(input.val());
+            if (current > 1) {
+                input.val(current - 1);
+            }
+        });
+    });
+    </script>
     </body>
 
 </html>

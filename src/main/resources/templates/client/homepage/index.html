@@ -67,7 +67,7 @@
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content rounded-0">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Tìm kiếm từ khóa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body d-flex align-items-center">
@@ -94,6 +94,18 @@
     <!-- Dây Shop Start-->
     <div class="container-fluid fruite py-5">
         <div class="container py-5">
+            <!-- Tìm kiếm theo giá -->
+            <form th:action="@{/}" method="get" class="row mb-4">
+                <div class="col-md-3">
+                    <input type="number" name="minPrice" class="form-control" th:value="${minPrice}" placeholder="Giá tối thiểu" min="0">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="maxPrice" class="form-control" th:value="${maxPrice}" placeholder="Giá tối đa" min="0">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                </div>
+            </form>
             <div class="tab-class text-center">
                 <div class="row g-4">
                     <div class="col-lg-4 text-start">
@@ -131,26 +143,67 @@
                 </div>
                 
                 <div class="tab-content">
+                    <!-- Tất cả sản phẩm -->
                     <div id="tab-1" class="tab-pane fade show p-0 active">
                         <div class="row g-4">
-                            <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${products}">
+                            <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${allProducts}">
                                 <div class="rounded shadow-sm bg-white position-relative fruite-item">
                                     <div class="fruite-img">
                                         <img th:src="@{|/images/product/${product.imageURL}|}" class="img-fluid w-100 rounded-top" alt="">
                                     </div>
-                                    <div class="sale-badge">SALE</div>
-                                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label" 
-                                        th:text="${product.category.categoryName}"></div>
+                                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label" th:text="${product.category.categoryName}"></div>
                                     <div class="p-3 border-top-0 rounded-bottom text-center">
                                         <h5 class="product-title">
-                                            <a th:href="@{/product/{productId}(productId=${product.productId})}" 
-                                               th:text="${product.tenSP}" class="text-dark"></a>
+                                            <a th:href="@{/product/{productId}(productId=${product.productId})}" th:text="${product.tenSP}" class="text-dark"></a>
                                         </h5>
                                         <p class="price text-danger fw-bold mb-2">
                                             <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
                                         </p>
                                         <form method="POST" th:action="@{/add-product-to-cart/{id}(id=${product.productId})}">
-                                            <button href="#" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
+                                            <div th:if="${product.slTonKho == 0}">
+                                                <span class="text-danger fw-bold">Hết hàng</span>
+                                            </div>
+                                            <button class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center" th:unless="${product.slTonKho == 0}">
+                                                <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Phân trang -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/(page=${currentPage - 1},minPrice=${minPrice},maxPrice=${maxPrice})}">Trước</a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage ? 'active' : ''}">
+                                    <a class="page-link" th:href="@{/(page=${i},minPrice=${minPrice},maxPrice=${maxPrice})}" th:text="${i + 1}"></a>
+                                </li>
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/(page=${currentPage + 1},minPrice=${minPrice},maxPrice=${maxPrice})}">Sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <!-- Bán chạy -->
+                    <div id="tab-2" class="tab-pane fade show p-0">
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${bestSelling}">
+                                <div class="rounded shadow-sm bg-white position-relative fruite-item">
+                                    <div class="fruite-img">
+                                        <img th:src="@{|/images/product/${product.imageURL}|}" class="img-fluid w-100 rounded-top" alt="">
+                                    </div>
+                                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label" th:text="${product.category.categoryName}"></div>
+                                    <div class="p-3 border-top-0 rounded-bottom text-center">
+                                        <h5 class="product-title">
+                                            <a th:href="@{/product/{productId}(productId=${product.productId})}" th:text="${product.tenSP}" class="text-dark"></a>
+                                        </h5>
+                                        <p class="price text-danger fw-bold mb-2">
+                                            <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
+                                        </p>
+                                        <form method="POST" th:action="@{/add-product-to-cart/{id}(id=${product.productId})}">
+                                            <button class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
                                                 <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
                                             </button>
                                         </form>
@@ -159,121 +212,82 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade show p-0" id="tab-2">
+                    <!-- Hàng mới -->
+                    <div id="tab-3" class="tab-pane fade show p-0">
                         <div class="row g-4">
-                            <div class="col-lg-12">
-                                <div class="row g-4">
-                                    <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${products}">
-                                        <div class="rounded shadow-sm bg-white position-relative fruite-item">
-                                            <div class="fruite-img">
-                                                <img th:src="@{|/images/product/${product.imageURL}|}" 
-                                                     class="img-fluid w-100 rounded-top" alt="">
-                                            </div>
-                                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label"
-                                                 th:text="${product.category.categoryName}"></div>
-                                            <div class="p-3 border-top-0 rounded-bottom text-center">
-                                                <h5 class="product-title">
-                                                    <a th:href="@{/product/{productId}(productId=${product.productId})}"
-                                                       th:text="${product.tenSP}" class="text-dark"></a>
-                                                </h5>
-                                                <p class="price text-danger fw-bold mb-2">
-                                                    <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
-                                                </p>
-                                                <a href="#" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
-                                                    <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
-                                                </a>
-                                            </div>
-                                        </div>
+                            <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${newProducts}">
+                                <div class="rounded shadow-sm bg-white position-relative fruite-item">
+                                    <div class="fruite-img">
+                                        <img th:src="@{|/images/product/${product.imageURL}|}" class="img-fluid w-100 rounded-top" alt="">
+                                    </div>
+                                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label" th:text="${product.category.categoryName}"></div>
+                                    <div class="p-3 border-top-0 rounded-bottom text-center">
+                                        <h5 class="product-title">
+                                            <a th:href="@{/product/{productId}(productId=${product.productId})}" th:text="${product.tenSP}" class="text-dark"></a>
+                                        </h5>
+                                        <p class="price text-danger fw-bold mb-2">
+                                            <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
+                                        </p>
+                                        <form method="POST" th:action="@{/add-product-to-cart/{id}(id=${product.productId})}">
+                                            <button class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
+                                                <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade show p-0" id="tab-3">
+                    <!-- Thức ăn (giữ nguyên như cũ) -->
+                    <div id="tab-4" class="tab-pane fade show p-0">
+                        <!-- Tạm thời dùng ${allProducts}, nếu cần lọc thức ăn thì thêm logic -->
                         <div class="row g-4">
-                            <div class="col-lg-12">
-                                <div class="row g-4">
-                                    <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${products}">
-                                        <div class="rounded shadow-sm bg-white position-relative fruite-item">
-                                            <div class="fruite-img">
-                                                <img th:src="@{|/images/product/${product.imageURL}|}" 
-                                                     class="img-fluid w-100 rounded-top" alt="">
-                                            </div>
-                                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label"
-                                                 th:text="${product.category.categoryName}"></div>
-                                            <div class="p-3 border-top-0 rounded-bottom text-center">
-                                                <h5 class="product-title">
-                                                    <a th:href="@{/product/{productId}(productId=${product.productId})}"
-                                                       th:text="${product.tenSP}" class="text-dark"></a>
-                                                </h5>
-                                                <p class="price text-danger fw-bold mb-2">
-                                                    <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
-                                                </p>
-                                                <a href="#" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
-                                                    <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
-                                                </a>
-                                            </div>
-                                        </div>
+                            <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${allProducts}">
+                                <div class="rounded shadow-sm bg-white position-relative fruite-item">
+                                    <div class="fruite-img">
+                                        <img th:src="@{|/images/product/${product.imageURL}|}" class="img-fluid w-100 rounded-top" alt="">
+                                    </div>
+                                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label" th:text="${product.category.categoryName}"></div>
+                                    <div class="p-3 border-top-0 rounded-bottom text-center">
+                                        <h5 class="product-title">
+                                            <a th:href="@{/product/{productId}(productId=${product.productId})}" th:text="${product.tenSP}" class="text-dark"></a>
+                                        </h5>
+                                        <p class="price text-danger fw-bold mb-2">
+                                            <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
+                                        </p>
+                                        <form method="POST" th:action="@{/add-product-to-cart/{id}(id=${product.productId})}">
+                                            <button class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
+                                                <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade show p-0" id="tab-4">
+                    <!-- Giảm giá -->
+                    <div id="tab-5" class="tab-pane fade show p-0">
                         <div class="row g-4">
-                            <div class="col-lg-12">
-                                <div class="row g-4">
-                                    <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${products}">
-                                        <div class="rounded shadow-sm bg-white position-relative fruite-item">
-                                            <div class="fruite-img">
-                                                <img th:src="@{|/images/product/${product.imageURL}|}" 
-                                                     class="img-fluid w-100 rounded-top" alt="">
-                                            </div>
-                                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label"
-                                                 th:text="${product.category.categoryName}"></div>
-                                            <div class="p-3 border-top-0 rounded-bottom text-center">
-                                                <h5 class="product-title">
-                                                    <a th:href="@{/product/{productId}(productId=${product.productId})}"
-                                                       th:text="${product.tenSP}" class="text-dark"></a>
-                                                </h5>
-                                                <p class="price text-danger fw-bold mb-2">
-                                                    <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
-                                                </p>
-                                                <a href="#" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
-                                                    <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
-                                                </a>
-                                            </div>
-                                        </div>
+                            <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${discounted}">
+                                <div class="rounded shadow-sm bg-white position-relative fruite-item">
+                                    <div class="fruite-img">
+                                        <img th:src="@{|/images/product/${product.imageURL}|}" class="img-fluid w-100 rounded-top" alt="">
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade show p-0" id="tab-5">
-                        <div class="row g-4">
-                            <div class="col-lg-12">
-                                <div class="row g-4">
-                                    <div class="col-md-6 col-lg-4 col-xl-3" th:each="product: ${products}">
-                                        <div class="rounded shadow-sm bg-white position-relative fruite-item">
-                                            <div class="fruite-img">
-                                                <img th:src="@{|/images/product/${product.imageURL}|}" 
-                                                     class="img-fluid w-100 rounded-top" alt="">
-                                            </div>
-                                            <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label"
-                                                 th:text="${product.category.categoryName}"></div>
-                                            <div class="p-3 border-top-0 rounded-bottom text-center">
-                                                <h5 class="product-title">
-                                                    <a th:href="@{/product/{productId}(productId=${product.productId})}"
-                                                       th:text="${product.tenSP}" class="text-dark"></a>
-                                                </h5>
-                                                <p class="price text-danger fw-bold mb-2">
-                                                    <span th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}"></span>
-                                                </p>
-                                                <a href="#" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
-                                                    <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
-                                                </a>
-                                            </div>
-                                        </div>
+                                    <div class="sale-badge">Giảm giá</div>
+                                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute category-label" th:text="${product.category.categoryName}"></div>
+                                    <div class="p-3 border-top-0 rounded-bottom text-center">
+                                        <h5 class="product-title">
+                                            <a th:href="@{/product/{productId}(productId=${product.productId})}" th:text="${product.tenSP}" class="text-dark"></a>
+                                        </h5>
+                                        <p class="price text-danger fw-bold mb-2">
+                                            <span th:text="${#numbers.formatDecimal(product.giaGiam,0,'COMMA',0,'POINT') + ' VNĐ'}" class="text-success"></span>
+                                            <del th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT') + ' VNĐ'}" class="text-muted"></del>
+                                        </p>
+                                        <form method="POST" th:action="@{/add-product-to-cart/{id}(id=${product.productId})}">
+                                            <button class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center">
+                                                <i class="fa fa-shopping-bag me-2"></i> Thêm vào giỏ
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

@@ -1,5 +1,6 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -14,7 +15,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "reviews")
-public class Review {
+public class Review implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reviewId;
@@ -37,12 +39,6 @@ public class Review {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "productId", nullable = false)
     private Product product;
-
-    @Override
-    public String toString() {
-        return "Review [reviewId=" + reviewId + ", xepHangDG=" + xepHangDG + ", nDungDanhGia=" + nDungDanhGia
-                + ", ngayDanhGia=" + ngayDanhGia + ", user=" + user + ", product=" + product + "]";
-    }
 
     public Review(int reviewId, int xepHangDG, String nDungDanhGia, Date ngayDanhGia, User user, Product product) {
         this.reviewId = reviewId;

@@ -1,5 +1,6 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
 import java.sql.Date;
 
 import jakarta.persistence.Entity;
@@ -13,7 +14,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "campaignproducts")
-public class CampaignProduct {
+public class CampaignProduct implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int campaignProductId;
@@ -44,7 +46,7 @@ public class CampaignProduct {
     @Override
     public String toString() {
         return "CampaignProduct [campaignProductId=" + campaignProductId + ", discountPercentage=" + discountPercentage
-                + ", effectiveDate=" + effectiveDate + ", campaign=" + campaign + ", product=" + product + "]";
+                + ", effectiveDate=" + effectiveDate + "]";
     }
 
     public int getCampaignProductId() {

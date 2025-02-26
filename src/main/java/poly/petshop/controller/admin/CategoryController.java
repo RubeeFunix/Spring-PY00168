@@ -1,11 +1,14 @@
 package poly.petshop.controller.admin;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import poly.petshop.domain.Category;
 import poly.petshop.service.CategorySevice;
 
@@ -19,9 +22,43 @@ public class CategoryController {
         this.categorySevice = categorySevice;
     }
 
+    // @GetMapping("/admin/category")
+    // public String CategoryPage(Model model) {
+    // model.addAttribute("categories", categorySevice.getAllCategories());
+    // return "admin/category/show";
+    // }
+
+    // @GetMapping("/admin/category")
+    // public String CategoryPage(Model model, @RequestParam("field")
+    // Optional<String> field) {
+    // Sort sort = Sort.by(Direction.DESC, field.orElse("categoryId"));
+    // model.addAttribute("categories", categorySevice.getsort(sort));
+    // return "admin/category/show";
+    // }
+
+    // @GetMapping("/admin/category")
+    // public String CategoryPage(Model model, @RequestParam("p") Optional<Integer>
+    // p) {
+    // PageRequest phanTrang = PageRequest.of(p.orElse(0), 3);
+    // Page<Category> page = categorySevice.ShowByPage(phanTrang);
+    // model.addAttribute("trang", page);
+    // // model.addAttribute("categories", categorySevice.getAllCategories());
+    // return "admin/category/show";
+    // }
+
     @GetMapping("/admin/category")
-    public String CategoryPage(Model model) {
-        model.addAttribute("categories", categorySevice.getAllCategories());
+    public String CategoryPage(Model model,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "categoryId") String sortField,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+
+        Page<Category> categories = categorySevice.getCategoryPage(page, size, sortField, sortDirection);
+        model.addAttribute("categories", categories.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", categories.getTotalPages());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDirection", sortDirection.equals("asc") ? "desc" : "asc");
         return "admin/category/show";
     }
 
@@ -29,6 +66,7 @@ public class CategoryController {
     public String GetCategoryDetailPage(@PathVariable("categoryID") int categoryID, Model model) {
         Category category = categorySevice.getCategoryById(categoryID);
         model.addAttribute("category", category);
+
         model.addAttribute("categoryID", categoryID);
         return "admin/category/detail";
     }

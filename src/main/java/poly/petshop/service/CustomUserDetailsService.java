@@ -25,7 +25,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-
+        // Kiểm tra trạng thái activated
+        if (!user.isActivated()) {
+            throw new UsernameNotFoundException("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để kích hoạt.");
+        }
         return new User(
                 user.getEmail(),
                 user.getMatKhau(),

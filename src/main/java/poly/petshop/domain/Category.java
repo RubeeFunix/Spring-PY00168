@@ -1,5 +1,6 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -14,7 +15,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "categories")
-public class Category {
+public class Category implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int categoryId;
@@ -27,6 +29,11 @@ public class Category {
     private List<Product> products;
 
     public Category() {
+    }
+
+    @Override
+    public String toString() {
+        return "Category [categoryId=" + categoryId + ", categoryName=" + categoryName + "]";
     }
 
     public Category(int categoryId, String categoryName, List<Product> products) {

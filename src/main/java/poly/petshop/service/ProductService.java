@@ -6,11 +6,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpSession;
 import poly.petshop.domain.Cart;
 import poly.petshop.domain.Product;
 import poly.petshop.domain.User;
 import poly.petshop.repository.CartRepository;
 import poly.petshop.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ProductService {
@@ -29,6 +33,14 @@ public class ProductService {
     public List<Product> getAllProducts() {
         List<Product> products = this.productRepository.findAll();
         return products != null ? products : List.of(); // Trả về danh sách rỗng nếu `null`
+    }
+
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    public Page<Product> searchProductsByName(String keyword, Pageable pageable) {
+        return productRepository.findByTenSPContainingIgnoreCase(keyword, pageable);
     }
 
     // public List<Category> getAllUsersByEmail(String email) {
@@ -98,4 +110,58 @@ public class ProductService {
 
     }
 
+    public void removeProductFromCart(String email, int productId, HttpSession session) {
+        User user = this.userService.getUserByEmail(email);
+        Optional<Product> productOpt = this.productRepository.findById(productId);
+
+        if (user == null) {
+            throw new RuntimeException("Không tìm thấy user với email: " + email);
+        }
+
+        if (productOpt.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy sản phẩm với ID: " + productId);
+        }
+
+        Product product = productOpt.get();
+        Optional<Cart> cartItem = cartRepository.findCartByUserAndProduct(user, product);
+        if (cartItem.isPresent()) {
+            // Xóa sản phẩm khỏi giỏ hàng
+            cartRepository.deleteCartByUserAndProduct(user, product);
+
+            // Kiểm tra số lượng sản phẩm trong giỏ hàng
+            int newTotalQuantity;
+            if (user.getTotalQuantityInCart() > 1) {
+                newTotalQuantity = user.getTotalQuantityInCart() - 1;
+            } else {
+                newTotalQuantity = 0;
+            }
+
+            // Cập nhật totalQuantityInCart của user
+            user.setTotalQuantityInCart(newTotalQuantity);
+            userService.handleSaveUser(user); // Lưu lại vào database
+
+            // Cập nhật session
+            session.setAttribute("totalQuantityInCart", newTotalQuantity);
+        }
+    }
+
+    // Sản phẩm bán chạy (giả sử slTonKho thấp = bán chạy)
+    public List<Product> getBestSellingProducts(int limit) {
+        return productRepository.findTopByOrderBySlTonKhoAsc(PageRequest.of(0, limit));
+    }
+
+    // Sản phẩm giảm giá
+    public List<Product> getDiscountedProducts(int limit) {
+        return productRepository.findByGiaGiamGreaterThan(0, PageRequest.of(0, limit));
+    }
+
+    // Sản phẩm mới
+    public List<Product> getNewProducts(int limit) {
+        return productRepository.findTopByOrderByNgayTaoDesc(PageRequest.of(0, limit));
+    }
+
+    // Tìm kiếm theo giá
+    public Page<Product> searchByPriceRange(double minPrice, double maxPrice, Pageable pageable) {
+        return productRepository.findByGiaBetween(minPrice, maxPrice, pageable);
+    }
 }

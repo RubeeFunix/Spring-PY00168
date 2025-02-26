@@ -1,5 +1,6 @@
 package poly.petshop.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,14 +14,20 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import jakarta.servlet.DispatcherType;
+import poly.petshop.interceptor.AuthInterceptor;
 import poly.petshop.service.CustomUserDetailsService;
 import poly.petshop.service.UserService;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
-public class SecurityConfiguration {
+public class SecurityConfiguration implements WebMvcConfigurer {
+        @Autowired
+        private AuthInterceptor authInterceptor;
+
         @Bean
         public PasswordEncoder encoder() {
                 return new BCryptPasswordEncoder();
@@ -73,13 +80,14 @@ public class SecurityConfiguration {
                                                 .requestMatchers("/", "/login", "/client/**", "/css/**", "/js/**",
                                                                 "/shop/**", "/contact",
                                                                 "/images/**", "/content/**",
-                                                                "/product/**")
+                                                                "/product/**", "/resetpass")
+
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("Admin")
                                                 .anyRequest().authenticated())
                                 .oauth2Login(oauth2 -> oauth2
                                                 .loginPage("/login")
-                                                .defaultSuccessUrl("/", true)
+                                                .defaultSuccessUrl("/", false)
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .oidcUserService(new OidcUserService())))
                                 .rememberMe((rememberMe) -> rememberMe
@@ -93,11 +101,16 @@ public class SecurityConfiguration {
 
                                 .formLogin(formLogin -> formLogin
                                                 .loginPage("/login")
-                                                .failureUrl("/login?error")
+                                                .failureUrl("/login?error=true")
                                                 .successHandler(customSuccessHandler())
                                                 .permitAll());
 
                 return http.build();
         }
 
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(authInterceptor)
+                                .addPathPatterns("/myaccount", "/cart", "/thanhtoan", "/admin/**");
+        }
 }

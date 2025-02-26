@@ -117,7 +117,16 @@
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 			<version>3.4.2</version>
 		</dependency>
-
+		<!-- Trong pom.xml -->
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>8.0.1.Final</version> <!-- Hoặc phiên bản phù hợp với dự án -->
+		</dependency>
+		<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-mail</artifactId>
+</dependency>
 	</dependencies>
 
 	<build>

@@ -1,5 +1,7 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.validator.constraints.Length;
@@ -22,7 +24,8 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "products")
-public class Product {
+public class Product implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int productId;
@@ -42,6 +45,9 @@ public class Product {
     @NotEmpty(message = "Mô tả ngắn sản phẩm không được để trống")
     private String moTaNganSP;
 
+    @Column(nullable = true)
+    private Double giaGiam;
+
     @Column(nullable = true, columnDefinition = "NVARCHAR(255)")
     private String imageURL;
 
@@ -56,6 +62,9 @@ public class Product {
     @Column(nullable = true)
     @DecimalMin(value = "0.0", message = "Thuế không thể nhỏ hơn 0")
     private float thue;
+
+    @Column(name = "ngay_tao")
+    private Date ngayTao;
 
     @Column(nullable = false)
     @DecimalMin(value = "0.01", message = "Giá sản phẩm phải lớn hơn 0")
@@ -110,12 +119,26 @@ public class Product {
     public String toString() {
         return "Product [productId=" + productId + ", tenSP=" + tenSP + ", moTaSP=" + moTaSP + ", moTaNganSP="
                 + moTaNganSP + ", imageURL=" + imageURL + ", sku=" + sku + ", slTonKho=" + slTonKho + ", thue=" + thue
-                + ", gia=" + gia + ", category=" + category + ", supplier=" + supplier + ", orderDetails="
-                + orderDetails + ", reviews=" + reviews + ", campaignProducts=" + campaignProducts + ", carts=" + carts
-                + "]";
+                + ", gia=" + gia + "]";
     }
 
     public Product() {
+    }
+
+    public Date getNgayTao() {
+        return ngayTao;
+    }
+
+    public void setNgayTao(Date ngayTao) {
+        this.ngayTao = ngayTao;
+    }
+
+    public double getGiaGiam() {
+        return giaGiam;
+    }
+
+    public void setGiaGiam(double giaGiam) {
+        this.giaGiam = giaGiam;
     }
 
     public int getProductId() {

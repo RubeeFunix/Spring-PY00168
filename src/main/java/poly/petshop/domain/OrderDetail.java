@@ -1,5 +1,7 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +14,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ordersdetails")
-public class OrderDetail {
+public class OrderDetail implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int orderDetailId;
@@ -39,7 +42,7 @@ public class OrderDetail {
     @Override
     public String toString() {
         return "OrderDetail [orderDetailId=" + orderDetailId + ", soLuong=" + soLuong + ", donGia=" + donGia
-                + ", tongGia=" + tongGia + ", order=" + order + ", product=" + product + "]";
+                + ", tongGia=" + tongGia + "]";
     }
 
     public OrderDetail() {

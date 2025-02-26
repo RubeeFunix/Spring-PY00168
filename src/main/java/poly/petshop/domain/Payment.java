@@ -1,5 +1,6 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -14,7 +15,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "payments")
-public class Payment {
+public class Payment implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int paymentId;
@@ -43,6 +45,12 @@ public class Payment {
     public Payment() {
     }
 
+    @Override
+    public String toString() {
+        return "Payment [paymentId=" + paymentId + ", pThucTT=" + pThucTT + ", statusTT=" + statusTT + ", ngayTT="
+                + ngayTT + ", tongTienTT=" + tongTienTT + "]";
+    }
+
     public Payment(int paymentId, String pThucTT, String statusTT, Date ngayTT, float tongTienTT, Order order,
             User user) {
         this.paymentId = paymentId;
@@ -52,12 +60,6 @@ public class Payment {
         this.tongTienTT = tongTienTT;
         this.order = order;
         this.user = user;
-    }
-
-    @Override
-    public String toString() {
-        return "Payment [paymentId=" + paymentId + ", pThucTT=" + pThucTT + ", statusTT=" + statusTT + ", ngayTT="
-                + ngayTT + ", tongTienTT=" + tongTienTT + ", order=" + order + ", user=" + user + "]";
     }
 
     public int getPaymentId() {

@@ -1,5 +1,6 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -15,7 +16,8 @@ import jakarta.validation.constraints.Min;
 
 @Entity
 @Table(name = "carts")
-public class Cart {
+public class Cart implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int cartId;
@@ -50,8 +52,7 @@ public class Cart {
 
     @Override
     public String toString() {
-        return "Cart [cartId=" + cartId + ", soLuongTrongGio=" + soLuongTrongGio + ", ngayThemGio=" + ngayThemGio
-                + ", user=" + user + ", product=" + product + "]";
+        return "Cart [cartId=" + cartId + ", soLuongTrongGio=" + soLuongTrongGio + ", ngayThemGio=" + ngayThemGio + "]";
     }
 
     public int getCartId() {

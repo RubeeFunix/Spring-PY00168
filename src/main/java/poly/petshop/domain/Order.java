@@ -1,7 +1,11 @@
 package poly.petshop.domain;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.data.annotation.Transient;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,7 +21,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,12 +43,23 @@ public class Order {
     private User user;
 
     // one user to many orderDetails
-    @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<OrderDetail> orderDetails;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 
     // one user to many payments
     @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Payment> payments;
+
+    @Transient // Không lưu vào DB, chỉ dùng tạm thời để nhận dữ liệu từ form
+    private List<Integer> selectedProductIds;
+
+    public List<Integer> getSelectedProductIds() {
+        return selectedProductIds;
+    }
+
+    public void setSelectedProductIds(List<Integer> selectedProductIds) {
+        this.selectedProductIds = selectedProductIds;
+    }
 
     public Order() {
     }
@@ -65,60 +81,67 @@ public class Order {
                 + tongGiaTri + ", user=" + user + ", orderDetails=" + orderDetails + ", payments=" + payments + "]";
     }
 
-    public int getOrderId() {
-        return orderId;
-    }
-
     public void setOrderId(int orderId) {
         this.orderId = orderId;
-    }
-
-    public Date getNgayOrder() {
-        return ngayOrder;
     }
 
     public void setNgayOrder(Date ngayOrder) {
         this.ngayOrder = ngayOrder;
     }
 
-    public String getTrangThai() {
-        return trangThai;
-    }
-
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
-    }
-
-    public float getTongGiaTri() {
-        return tongGiaTri;
     }
 
     public void setTongGiaTri(float tongGiaTri) {
         this.tongGiaTri = tongGiaTri;
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails.clear(); // Xóa danh sách cũ
+        if (orderDetails != null) {
+            this.orderDetails.addAll(orderDetails);
+        }
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public Date getNgayOrder() {
+        return ngayOrder;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public float getTongGiaTri() {
+        return tongGiaTri;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public List<OrderDetail> getOrderDetails() {
         return orderDetails;
     }
 
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
-        this.orderDetails = orderDetails;
-    }
-
     public List<Payment> getPayments() {
         return payments;
-    }
-
-    public void setPayments(List<Payment> payments) {
-        this.payments = payments;
     }
 
 }

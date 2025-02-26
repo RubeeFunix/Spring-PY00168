@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>E Store - eCommerce HTML Template</title>
+        <title>Tài khoản</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="eCommerce HTML Template Free Download" name="keywords">
         <meta content="eCommerce HTML Template Free Download" name="description">
@@ -48,7 +48,7 @@
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content rounded-0">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Tìm bởi từ khóa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body d-flex align-items-center">
@@ -112,89 +112,87 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Product Name</td>
-                                                <td>01 Jan 2020</td>
-                                                <td>$99</td>
-                                                <td>Approved</td>
-                                                <td><button class="btn">View</button></td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>Product Name</td>
-                                                <td>01 Jan 2020</td>
-                                                <td>$99</td>
-                                                <td>Approved</td>
-                                                <td><button class="btn">View</button></td>
-                                            </tr>
-                                            <tr>
-                                                <td>3</td>
-                                                <td>Product Name</td>
-                                                <td>01 Jan 2020</td>
-                                                <td>$99</td>
-                                                <td>Approved</td>
-                                                <td><button class="btn">View</button></td>
+                                            <tr th:each="order : ${orders}">
+                                                <td th:text="${order.orderId}">1</td>
+                                                <td>
+                                                    <ul>
+                                                        <li th:each="orderDetail : ${order.orderDetails}">
+                                                            <span th:text="${orderDetail.product.tenSP}"></span> - 
+                                                            <span th:text="${orderDetail.soLuong}"></span> cái
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                                <td th:text="${#dates.format(order.ngayOrder, 'dd/MM/yyyy')}">01 Jan 2020</td>
+                                                <td th:text="${#numbers.formatInteger(order.tongGiaTri, 0, 'POINT')} + ' Đ'">$99</td>
+                                                <td th:text="${order.trangThai}">Approved</td>
+                                                <td><button class="btn">Xem</button></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
+                            </div>                           
                             <div class="tab-pane fade" id="address-tab" role="tabpanel" aria-labelledby="address-nav">
-                                <h4>Address</h4>
+                                <h4>Địa Chỉ</h4>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <h5>Payment Address</h5>
-                                        <p>123 Payment Street, Los Angeles, CA</p>
-                                        <p>Mobile: 012-345-6789</p>
-                                        <button class="btn">Edit Address</button>
+                                        <h5>Địa chỉ thanh toán</h5>
+                                        <p th:text="${user.diaChi}">123 Payment Street, Los Angeles, CA</p>
+                                        <p th:text="' Số điện thoại: ' + ${user.soDienThoai}">Mobile: 012-345-6789</p>
+                                        <button class="btn">Sửa Địa Chỉ</button>
                                     </div>
                                     <div class="col-md-6">
-                                        <h5>Shipping Address</h5>
-                                        <p>123 Shipping Street, Los Angeles, CA</p>
-                                        <p>Mobile: 012-345-6789</p>
-                                        <button class="btn">Edit Address</button>
+                                        <h5>Địa chỉ giao hàng</h5>
+                                        <p th:text="${user.diaChi}">123 Shipping Street, Los Angeles, CA</p>
+                                        <p th:text="' Số điện thoại: ' + ${user.soDienThoai}">Mobile: 012-345-6789</p>
+                                        <button class="btn">Sửa Địa Chỉ</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="account-tab" role="tabpanel" aria-labelledby="account-nav">
-                                <h4>Account Details</h4>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="text" placeholder="First Name">
+                                <h4>Thông tin tài khoản</h4>
+                                <form th:action="@{/myaccount/update}" method="post" th:object="${user}">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input class="form-control" type="text" name="hoVaTen" th:field="*{hoVaTen}" placeholder="Họ và tên">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input class="form-control" type="text" name="soDienThoai" th:field="*{soDienThoai}" placeholder="Số điện thoại">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input class="form-control" type="text" name="gioiTinh" th:field="*{gioiTinh}" placeholder="Giới tính">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input class="form-control" type="date" name="ngaySinh" th:field="*{ngaySinh}" placeholder="Ngày sinh">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="form-control" type="text" name="diaChi" th:field="*{diaChi}" placeholder="Địa chỉ">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <button class="btn" type="submit">Cập nhật tài khoản</button>
+                                            <br><br>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="text" placeholder="Last Name">
+                                </form>
+                                <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+                                <h4>Đổi mật khẩu</h4>
+                                <form th:action="@{/myaccount/change-password}" method="post">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <input class="form-control" type="password" name="currentPassword" placeholder="Mật khẩu hiện tại" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input class="form-control" type="password" name="newPassword" placeholder="Mật khẩu mới" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input class="form-control" type="password" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <button class="btn" type="submit">Lưu thay đổi</button>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="text" placeholder="Mobile">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="text" placeholder="Email">
-                                    </div>
-                                    <div class="col-md-12">
-                                        <input class="form-control" type="text" placeholder="Address">
-                                    </div>
-                                    <div class="col-md-12">
-                                        <button class="btn">Update Account</button>
-                                        <br><br>
-                                    </div>
-                                </div>
-                                <h4>Password change</h4>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input class="form-control" type="password" placeholder="Current Password">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="text" placeholder="New Password">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input class="form-control" type="text" placeholder="Confirm Password">
-                                    </div>
-                                    <div class="col-md-12">
-                                        <button class="btn">Save Changes</button>
-                                    </div>
-                                </div>
+                                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                                    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -210,7 +208,22 @@
         <script src="/content/user/lib/slick/slick.min.js"></script>
         <!-- Template Javascript -->
         <script src="/content/user/js/main.js"></script>
-
+        <script>
+            $(document).ready(function () {
+                $(".view-order-btn").click(function (e) {
+                    e.preventDefault();
+            
+                    let orderId = $(this).data("order-id");
+            
+                    $.get(`/order-details/${orderId}`, function (data) {
+                        $("#order-detail-content").html($(data).find("#order-detail-content").html());
+                        $("#chitiet-tab").addClass("show active");
+                        $("#orders-tab").removeClass("show active");
+                    });
+                });
+            });
+            </script>
+            
         
 
         <!-- JavaScript Libraries -->

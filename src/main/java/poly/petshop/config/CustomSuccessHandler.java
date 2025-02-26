@@ -12,6 +12,8 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +53,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         String email = authentication.getName();
         User user = this.userService.getUserByEmail(email);
         if (user != null) {
+            session.setAttribute("user", user);
             session.setAttribute("avatar", user.getAvatar());
             session.setAttribute("id", user.getUserId());
             session.setAttribute("email", user.getEmail());
@@ -66,13 +69,30 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
         // url de redirect sau login
-        String targetUrl = determineTargetUrl(authentication);
+        SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
+        String targetUrl;
+
+        // Chỉ dùng SavedRequest nếu nó hợp lệ, nếu không thì dùng determineTargetUrl
+        if (savedRequest != null && !savedRequest.getRedirectUrl().contains("/error")) {
+            targetUrl = savedRequest.getRedirectUrl();
+            System.out.println("Using saved request URL: " + targetUrl);
+        } else {
+            targetUrl = determineTargetUrl(authentication);
+            System.out.println("Determined target URL: " + targetUrl);
+        }
 
         if (response.isCommitted()) {
+            System.out.println("Response already committed");
             return;
         }
 
-        redirectStrategy.sendRedirect(request, response, targetUrl);
+        try {
+            redirectStrategy.sendRedirect(request, response, targetUrl);
+            System.out.println("Redirect successful to: " + targetUrl);
+        } catch (Exception e) {
+            System.err.println("Redirect failed: " + e.getMessage());
+            e.printStackTrace();
+        }
         // don dep session
         clearAuthenticationAttributes(request, authentication);
     }

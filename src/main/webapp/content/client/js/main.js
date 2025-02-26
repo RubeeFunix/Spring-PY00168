@@ -132,20 +132,117 @@
 
 
     // Product Quantity
-    $('.quantity button').on('click', function () {
-        var button = $(this);
-        var oldValue = button.parent().parent().find('input').val();
-        if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
-        } else {
-            if (oldValue > 0) {
-                var newVal = parseFloat(oldValue) - 1;
-            } else {
-                newVal = 0;
-            }
+    // $('.quantity button').on('click', function () {
+    //     var button = $(this);
+    //     var oldValue = button.parent().parent().find('input').val();
+    //     if (button.hasClass('btn-plus')) {
+    //         var newVal = parseFloat(oldValue) + 1;
+    //     } else {
+    //         if (oldValue > 0) {
+    //             var newVal = parseFloat(oldValue) - 1;
+    //         } else {
+    //             newVal = 0;
+    //         }
+    //     }
+    //     button.parent().parent().find('input').val(newVal);
+    // });
+
+    $(document).ready(function () {
+        function updateTotalPrice() {
+            let totalCartPrice = 0;
+            let shippingFee = 30000; // Giả định phí vận chuyển là 30,000 Đ
+    
+            $(".quantity").each(function () {
+                let $row = $(this).closest("tr");
+                let price = parseFloat($row.data("price")); // Giá sản phẩm
+                let quantity = parseInt($row.find(".quantity-input").val()); // Số lượng
+                let total = price * quantity; // Tổng tiền từng sản phẩm
+                $row.find(".total-price").text(total.toLocaleString() + " Đ"); // Cập nhật tổng tiền từng sản phẩm
+    
+                totalCartPrice += total; // Cộng dồn tổng tiền giỏ hàng
+            });
+    
+            // Cập nhật tổng tiền tạm tính
+            $(".subtotal-price").text(totalCartPrice.toLocaleString() + " Đ");
+    
+            // Cập nhật tổng tiền cuối cùng (cộng thêm phí ship)
+            let finalTotal = totalCartPrice + shippingFee;
+            $(".cart-total-price").text(finalTotal.toLocaleString() + " Đ");
         }
-        button.parent().parent().find('input').val(newVal);
+    
+        // Xử lý khi nhấn nút tăng/giảm số lượng
+        $('.quantity button').on('click', function () {
+            let $button = $(this);
+            let $row = $button.closest("tr");
+            let $quantityInput = $row.find(".quantity-input");
+            let quantity = parseInt($quantityInput.val());
+    
+            if ($button.hasClass('btn-plus')) {
+                quantity++;
+            } else {
+                if (quantity > 1) { // Không cho giảm dưới 1
+                    quantity--;
+                }
+            }
+    
+            $quantityInput.val(quantity); // Cập nhật số lượng
+            updateTotalPrice(); // Cập nhật tổng tiền
+        });
+    
+        // Cập nhật tổng tiền khi trang load
+        updateTotalPrice();
+    });
+    $(document).ready(function () {
+    $(".btn-remove").click(function () {
+        let productId = $(this).data("id"); // Lấy ID sản phẩm cần xóa
+        let $row = $(this).closest("tr"); // Lấy hàng chứa sản phẩm để xóa
+
+        $.ajax({
+            url: "/cart/remove/" + productId,
+            type: "POST",
+            success: function (response) {
+                $row.remove(); // Xóa sản phẩm khỏi giao diện
+                updateTotalPrice(); // Cập nhật lại tổng tiền
+            },
+            error: function (xhr) {
+                alert("Lỗi khi xóa sản phẩm: " + xhr.responseText);
+            }
+        });
     });
 
+    function updateTotalPrice() {
+        let totalCartPrice = 0;
+        $(".quantity").each(function () {
+            let price = parseFloat($(this).closest("tr").data("price"));
+            let quantity = parseInt($(this).find(".quantity-input").val());
+            totalCartPrice += price * quantity;
+        });
+
+        $(".subtotal-price").text(totalCartPrice.toLocaleString() + " Đ");
+        $(".cart-total-price").text((totalCartPrice + 30000).toLocaleString() + " Đ");
+
+        // Ẩn toàn bộ phần tổng tiền nếu không còn sản phẩm nào
+        if ($(".quantity").length === 0) {
+            $("div:has(.cart-total-price)").hide();
+        }
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".delete-cart-item").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            let productId = this.getAttribute("data-id");
+
+            fetch(`/delete-cart-product/${productId}`, {
+                method: "POST"
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload(); // Reload trang sau khi xóa
+                }
+            }).catch(error => console.error("Lỗi khi xóa sản phẩm:", error));
+        });
+    });
+});
+    
 })(jQuery);
 

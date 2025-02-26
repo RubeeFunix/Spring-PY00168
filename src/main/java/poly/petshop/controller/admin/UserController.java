@@ -3,6 +3,8 @@ package poly.petshop.controller.admin;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import jakarta.validation.Valid;
 import poly.petshop.domain.User;
 import poly.petshop.service.UploadService;
@@ -41,9 +46,32 @@ public class UserController {
     }
 
     @GetMapping("/admin/user")
-    public String UserPage(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
-        return "admin/user/show"; // Điều hướng về trang user
+    public String UserPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "userId") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "") String keyword,
+            Model model) {
+        Sort sort = Sort.by(direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<User> userPage;
+        if (keyword.isEmpty()) {
+            userPage = userService.getAllUsers(pageable);
+        } else {
+            userPage = userService.searchUsersByKeyword(keyword, pageable);
+        }
+
+        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("currentPage", userPage.getNumber());
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("totalElements", userPage.getTotalElements());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
+        model.addAttribute("keyword", keyword);
+
+        return "admin/user/show";
     }
 
     @GetMapping("/admin/user/{userId}")
@@ -75,12 +103,12 @@ public class UserController {
             Model model,
             @RequestParam("image") MultipartFile file) throws IOException {
 
-        // validate
-        List<FieldError> errors = newUserBindingResult.getFieldErrors();
-        for (FieldError error : errors) {
-            System.out.println(error.getField() + " - " + error.getDefaultMessage());
-        }
         if (newUserBindingResult.hasErrors()) {
+            // validate
+            List<FieldError> errors = newUserBindingResult.getFieldErrors();
+            for (FieldError error : errors) {
+                System.out.println(error.getField() + " - " + error.getDefaultMessage());
+            }
             model.addAttribute("userRoles", List.of("Admin", "User"));
             List<String> options = new ArrayList<>();
             options.add("Nam");
@@ -99,7 +127,8 @@ public class UserController {
             return "admin/user/create";
         }
         // Kiểm tra số điện thoại đã tồn tại
-        if (userService.phoneExists(user.getSoDienThoai())) {
+        if (user.getSoDienThoai() != null && !user.getSoDienThoai().isEmpty()
+                && userService.phoneExists(user.getSoDienThoai())) {
             model.addAttribute("userRoles", List.of("Admin", "User"));
             List<String> options = new ArrayList<>();
             options.add("Nam");
@@ -121,7 +150,7 @@ public class UserController {
         this.userService.handleSaveUser(user);
 
         // thông báo
-        model.addAttribute("msg", "User created successfully with avatar: " + fileName);
+        model.addAttribute("msg", "Người dùng đã được tạo thành công với avatar: " + fileName);
 
         return "redirect:/admin/user"; // Điều hướng về trang user
     }
@@ -143,17 +172,35 @@ public class UserController {
     }
 
     @PostMapping("/admin/user/update")
-    public String PostUserUpdatePage(@ModelAttribute("user") User thisUser, Model model,
+    public String PostUserUpdatePage(@ModelAttribute("user") @Valid User thisUser, BindingResult bindingResult,
+            Model model,
             @RequestParam("image") MultipartFile file) throws IOException {
+
+        List<FieldError> errors = new ArrayList<>(bindingResult.getFieldErrors());
+        errors.removeIf(error -> error.getField().equals("matKhau")); // Không kiểm tra mật khẩu khi update
+
+        if (!errors.isEmpty()) {
+            for (FieldError error : errors) {
+                System.out.println(error.getField() + " - " + error.getDefaultMessage());
+            }
+            model.addAttribute("userRoles", List.of("Admin", "User"));
+            model.addAttribute("options", List.of("Nam", "Nữ"));
+            return "admin/user/update";
+        }
+
         User currentUser = userService.getUserById(thisUser.getUserId());
         if (currentUser != null) {
-            if (!file.isEmpty()) {
+            if (file != null && !file.isEmpty()) {
                 // Thư mục lưu avatar
                 String avatarDirectory = System.getProperty("user.dir") + "/src/main/resources/static/images/avatar";
                 // Sau khi tiêm xong thì lấy ra xài
                 String fileName = uploadService.handleSaveFile(file, avatarDirectory);
-                currentUser.setAvatar(fileName);
+                currentUser.setAvatar(fileName != null && !fileName.isEmpty() ? fileName : currentUser.getAvatar());
+            } else {
+                // Giữ nguyên giá trị avatar hiện tại nếu không chọn file mới
+                currentUser.setAvatar(currentUser.getAvatar() != null ? currentUser.getAvatar() : "");
             }
+
             // Kiểm tra email đã tồn tại nhưng bỏ qua chính user hiện tại
             if (userService.emailExists(thisUser.getEmail(), thisUser.getUserId())) {
                 model.addAttribute("userRoles", List.of("Admin", "User"));
@@ -163,7 +210,8 @@ public class UserController {
             }
 
             // Kiểm tra số điện thoại đã tồn tại nhưng bỏ qua chính user hiện tại
-            if (userService.phoneExists(thisUser.getSoDienThoai(), thisUser.getUserId())) {
+            if (thisUser.getSoDienThoai() != null && !thisUser.getSoDienThoai().isEmpty() &&
+                    userService.phoneExists(thisUser.getSoDienThoai(), thisUser.getUserId())) {
                 model.addAttribute("userRoles", List.of("Admin", "User"));
                 model.addAttribute("options", List.of("Nam", "Nữ"));
                 model.addAttribute("errorSDT", "Số điện thoại đã được sử dụng! Vui lòng nhập số khác.");
@@ -174,7 +222,7 @@ public class UserController {
             currentUser.setSoDienThoai(thisUser.getSoDienThoai());
             currentUser.setUserRole(thisUser.getUserRole());
             currentUser.setGioiTinh(thisUser.getGioiTinh());
-
+            currentUser.setNgaySinh(thisUser.getNgaySinh());
             this.userService.handleSaveUser(currentUser);
 
         }
